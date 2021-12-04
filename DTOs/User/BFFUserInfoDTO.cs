@@ -8,8 +8,8 @@ namespace DTOs.User
 {
     public class BFFUserInfoDTO
     {
-        public string Id { get; set; }
-        public string Name { get; set; }
-        public string PictureURI { get; set; }
+        public static readonly BFFUserInfoDTO Anonymous = new BFFUserInfoDTO();
+        public string NameClaimType { get; set; }
+        public List<ClaimValueDTO> Claims { get; set; }
     }
 }
