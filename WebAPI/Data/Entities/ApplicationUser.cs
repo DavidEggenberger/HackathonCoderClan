@@ -8,6 +8,7 @@ namespace WebAPI.Data.Entities
 {
     public class ApplicationUser : IdentityUser
     {
+        public bool PrivateProfile { get; set; }
         public int TabsOpen { get; set; }
         public bool IsOnline { get; set; }
         public string PictureURI { get; set; }

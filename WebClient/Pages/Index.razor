@@ -1,4 +1,39 @@
 ﻿@page "/"
+@inject NavigationManager NavigationManager
 
+<div class="IndexContainer">
+    <CascadingValue Value="hubConnection">
+        <aside class="OnlineUserAside">
+            <div class="OnlineUserHeaderSection">
+                <h3>Online Clan Members</h3>
+            </div>
+            <div class="OnlineUsers">
 
+            </div>
+            <div class="OnlineUserHeaderSection">
+                <h3>Offline Clan Members</h3>
+            </div>
+            <div class="OnlineUsers">
 
+            </div>
+        </aside>
+        <div class="IndexMainSection">
+            <ChatComponent/>
+            <UserDisplayComponent/>
+            <MyUserComponent/>
+        </div>
+    </CascadingValue> 
+</div>
+
+@code{
+    private HubConnection hubConnection;
+
+    protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+                .WithUrl(NavigationManager.ToAbsoluteUri("/onlineHub"))
+                .Build();
+        await hubConnection.StartAsync();
+        StateHasChanged();
+    }
+}
