@@ -15,6 +15,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using WebAPI.Data;
 using WebAPI.Data.Entities;
+using WebAPI.GitHub;
 using WebAPI.Hubs;
 
 namespace WebAPI
@@ -35,7 +36,12 @@ namespace WebAPI
             services.AddRazorPages();
             services.AddControllers();
             services.AddSignalR();
+            services.AddAutoMapper(typeof(Startup).Assembly);
 
+            services.AddHttpClient<GitHubAPIClient>(httpClient =>
+            {
+                httpClient.BaseAddress = new Uri("https://api.github.com");
+            });
             services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseSqlServer(Configuration["AzureKeyVaultAzureSQLConnection"]);
@@ -49,11 +55,12 @@ namespace WebAPI
             {
                 options.ClientId = Configuration["AzureKeyVaultGitHubClientId"];
                 options.ClientSecret = Configuration["AzureKeyVaultGitHubClientSecret"];
-                options.Events.OnCreatingTicket = context =>
+                options.SaveTokens = true;
+                options.Events.OnCreatingTicket = async context =>
                 {
+                    context.Identity.AddClaim(new Claim("access_token", context.AccessToken));
                     string picUri = context.User.GetProperty("avatar_url").GetString();
                     context.Identity.AddClaim(new Claim("picture", picUri));
-                    return Task.CompletedTask;
                 };
             });
             authenticationBuilder.AddExternalCookie().Configure(options =>

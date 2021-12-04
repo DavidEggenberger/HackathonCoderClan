@@ -7,7 +7,6 @@ namespace WebAPI.GitHub
 {
     public class GitHubRoot
     {
-        public Guid Id { get; set; }
         public string ApplicationUserId { get; set; }
         public string login { get; set; }
         public string node_id { get; set; }

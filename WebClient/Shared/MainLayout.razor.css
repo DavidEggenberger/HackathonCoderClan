@@ -1,0 +1,15 @@
+.underscore{
+    position: relative;
+}
+.underscore::before{
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background-color: white;
+}
+.LogoutSection{
+    display: flex;
+}

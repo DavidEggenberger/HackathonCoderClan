@@ -1,4 +1,5 @@
-﻿using DTOs.User;
+﻿using AutoMapper;
+using DTOs.User;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -12,11 +13,12 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using WebAPI.Data;
 using WebAPI.Data.Entities;
+using WebAPI.GitHub;
 using WebAPI.Hubs;
 
 namespace WebAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class UserController : ControllerBase
     {
@@ -24,22 +26,26 @@ namespace WebAPI.Controllers
         private UserManager<ApplicationUser> userManager;
         private IHubContext<OnlineHub> onlineHubContext;
         private ApplicationDbContext applicationDbContext;
-        public UserController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, IHubContext<OnlineHub> onlineHubContext, ApplicationDbContext applicationDbContext)
+        private GitHubAPIClient gitHubAPIClient;
+        private IMapper mapper;
+        public UserController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, IHubContext<OnlineHub> onlineHubContext, ApplicationDbContext applicationDbContext, GitHubAPIClient gitHubAPIClient, IMapper mapper)
         {
             this.signInManager = signInManager;
             this.userManager = userManager;
             this.onlineHubContext = onlineHubContext;
             this.applicationDbContext = applicationDbContext;
+            this.gitHubAPIClient = gitHubAPIClient;
+            this.mapper = mapper;
         }
         [HttpGet("Login")]
         public async Task<ActionResult> LoginRedirectToGitHub()
         {
             var redirectUrl = Url.Action("GitHubLoginCallback", "User");
-            var properties = signInManager.ConfigureExternalAuthenticationProperties("Microsoft", redirectUrl);
+            var properties = signInManager.ConfigureExternalAuthenticationProperties("GitHub", redirectUrl);
             return Challenge(properties, "GitHub");
         }
         [HttpGet]
-        public async Task<IActionResult> ExternalLoginCallback(string ReturnUrl = null)
+        public async Task<IActionResult> GitHubLoginCallback(string ReturnUrl = null)
         {
             var info = await signInManager.GetExternalLoginInfoAsync();
             var user = await userManager.FindByNameAsync(info.Principal.Identity.Name);
@@ -52,6 +58,12 @@ namespace WebAPI.Controllers
                     IsOnline = false,
                     PictureURI = info.Principal.Claims.Where(claim => claim.Type == "picture").First().Value
                 };
+
+                gitHubAPIClient.SetAuthorizationHeader(info.Principal.Claims.Where(c => c.Type == "access_token").First().Value);
+                GitHubRoot gitHubRoot = await gitHubAPIClient.GetGitHubRootAsync();
+                GitHubRootEntity gitHubRootEntity = mapper.Map<GitHubRootEntity>(gitHubRoot);
+                _user.GitHubRoot = gitHubRootEntity;
+
                 var result = await userManager.CreateAsync(_user);
                 if (result.Succeeded)
                 {
