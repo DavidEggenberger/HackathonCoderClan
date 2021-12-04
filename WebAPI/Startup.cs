@@ -100,6 +100,7 @@ namespace WebAPI
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseBlazorFrameworkFiles();
 
             app.UseRouting();
 
