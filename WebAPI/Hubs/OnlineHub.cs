@@ -74,5 +74,13 @@ namespace WebAPI.Hubs
             await applicationDbContext.SaveChangesAsync();
             await Clients.All.SendAsync("UpdateChatMessages", group.Id);
         }
+        public async Task RemoveMessage(MessagesDTO messageDTO)
+        {
+            ApplicationUser appUser = applicationDbContext.Users.Include(s => s.SentMessages).Where(uer => uer.Id == Context.User.FindFirst(ClaimTypes.NameIdentifier).Value).First();
+            Message message = appUser.SentMessages.Where(s => s.Id == messageDTO.Id).FirstOrDefault();
+            appUser.SentMessages.Remove(message);
+            await applicationDbContext.SaveChangesAsync();
+            await Clients.All.SendAsync("UpdateChatMessages", messageDTO.GroupId);
+        }
     }
 }

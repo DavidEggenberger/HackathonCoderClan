@@ -104,8 +104,10 @@ namespace WebAPI.Controllers
         public async Task<List<MessagesDTO>> GetMessagesPerGroup(Guid groupId)
         {
             Group group = applicationDbContext.Groups.Include(s => s.GroupMessages).ThenInclude(t => t.ApplicationUser).Where(group => group.Id == groupId).First();
-            return group.GroupMessages.Select(message => new MessagesDTO
+            return group.GroupMessages.Where(g => g.ApplicationUser != null).Select(message => new MessagesDTO
             {
+                GroupId = group.Id,
+                Id = message.Id,
                 Content = message.Text,
                 SenderUserName = message.ApplicationUser.UserName
             }).ToList();

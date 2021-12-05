@@ -16,12 +16,27 @@
     <div class="MessageSection">
         @if (messages != null)
         {
-            foreach (var message in messages)
-            {
-                <div class="message">
-                    @message.SenderUserName: @message.Content
-                </div>
-            }
+            <AuthorizeView>
+                <Authorized>
+                    @foreach (var message in messages)
+                    {
+                        if(message.SenderUserName == context.User.Identity.Name)
+                        {
+                            <div class="message" style="display: flex;">
+                                @message.SenderUserName: @message.Content <h3 @onclick='async() => { await HubConnection.InvokeAsync("RemoveMessage", new MessagesDTO { Id = message.Id, GroupId = selectedGrup.Id }); updateSerice.Invoke(); }'>Delete Message</h3>
+                            </div>               
+                        }
+                    }
+                </Authorized>
+                <NotAuthorized>
+                    @foreach (var message in messages)
+                    {
+                        <div class="message">
+                            @message.SenderUserName: @message.Content
+                        </div>
+                    }
+                </NotAuthorized>
+            </AuthorizeView>
         }
         <AuthorizeView>
             <Authorized>
