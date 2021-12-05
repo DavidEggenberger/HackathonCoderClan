@@ -182,5 +182,16 @@ namespace WebAPI.Controllers
                 SentTime = message.SentTime
             }).ToList();
         }
+        [HttpGet("allMessages")]
+        public async Task<List<MessagesDTO>> GetAllMessages()
+        {
+            return applicationDbContext.Groups.Include(s => s.GroupMessages).SelectMany(s => s.GroupMessages).Select(message => new MessagesDTO
+            {
+                SentTime = message.SentTime,
+                Id = message.Id,
+                Content = message.Text,
+                SenderUserName = message.ApplicationUser.UserName
+            }).ToList();
+        }
     }
 }

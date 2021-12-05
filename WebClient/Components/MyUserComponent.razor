@@ -2,6 +2,12 @@
 @inject HttpClient http
 @inject UpdateService updateSerice
 
+<style>
+    .apexcharts-toolbar {
+        display: none;
+    }
+</style>
+
 <div class="MyUserContainer">
     <div style="display: grid; place-content: center;">
         <AuthorizeView>
@@ -9,11 +15,12 @@
                 <h3>@context.User.Identity.Name Configure your User Profile</h3>
             </Authorized>
             <NotAuthorized>
-
+                <h3>If you are logged in you here can join/create groups and have an overview over your sent messages</h3>
+                <h3>Here you see an overview over all sent messages</h3>
             </NotAuthorized>
         </AuthorizeView>
     </div>
-    <div class="MainSection">
+    <div class="MainSection" style="overflow: hidden;">
         <AuthorizeView>
             <Authorized>
                 <div class="userConfigurationComponent">
@@ -27,15 +34,15 @@
                                     <h3>@group.Name</h3>
                                     @if (!group.MembersId.Contains(principal.Claims.Where(s => s.Type == ClaimTypes.NameIdentifier).First().Value))
                                     {
-                                        <h3 style="cursor: pointer; margin-left: 10px;" @onclick="async() => await JoinGroup(group.Id)">Join Group</h3>
+                                        <h5 style="cursor: pointer; margin-left: 10px;" @onclick="async() => await JoinGroup(group.Id)">Join Group</h5>
                                     }
                                     else
                                     {
-                                        <h3 style="cursor: pointer; margin-left: 10px;" @onclick="async() => await LeaveGroup(group.Id)">Leave Group</h3>
+                                        <h5 style="cursor: pointer; margin-left: 10px;" @onclick="async() => await LeaveGroup(group.Id)">Leave Group</h5>
                                     }
                                     @if (group.CreatorId == null || group.CreatorId == principal.Claims.Where(s => s.Type == ClaimTypes.NameIdentifier).First().Value)
                                     {
-                                        <h3 style="cursor: pointer; margin-left: 10px;" @onclick="async() => await DeleteGroup(group.Id)">Delete Group</h3>
+                                        <h5 style="cursor: pointer; margin-left: 10px;" @onclick="async() => await DeleteGroup(group.Id)">Delete Group</h5>
                                     }
                                 </div>
                             }
@@ -47,14 +54,18 @@
                             <button @onclick="async() => await CreateGroupAsync()">Create Group</button>
                         </div>
                     </div>
-                    <div>
+                    <div style="
+    display: flex;
+    height: 300px;
+    width: 100%;
+">
                         @if (messagesInformation != null)
                         {
-                            <ApexChart @ref="ApexxChart" Title="Your Sent Messages" TItem="MessagesDTO">
+                            <ApexChart  Title="Your Sent Messages" TItem="MessagesDTO">
                                 <ApexPointSeries TItem="MessagesDTO" Name="SentMessagesperDay"
                                                  Items="messagesInformation"
                                                  SeriesType="SeriesType.Area"
-                                                 XValue="@(e => e.SentTime.Hour)"
+                                                 XValue="@(e =>  e.SentTime.ToUniversalTime().Hour)"
                                                  YAggregate="@(e => e.Count())"
                                                  ShowDataLabels />
                             </ApexChart>
@@ -63,24 +74,76 @@
                 </div>
             </Authorized>
             <NotAuthorized>
-
+                <div style="
+    display: flex;
+    height: 300px;
+    width: 100%;
+">
+                    @if (AllmessagesInformation != null)
+                    {
+                        <ApexChart Title="Sent Messages" TItem="MessagesDTO">
+                            <ApexPointSeries TItem="MessagesDTO" Name="SentMessagesperDay"
+                                             Items="AllmessagesInformation"
+                                             SeriesType="SeriesType.Area"
+                                             XValue="@(e =>  e.SentTime.ToUniversalTime().Hour)"
+                                             YAggregate="@(e => e.Count())"
+                                             ShowDataLabels />
+                        </ApexChart>
+                    }
+                </div>
             </NotAuthorized>
         </AuthorizeView>
     </div>
 </div>
 
 @code{
-    [CascadingParameter]
-    public Task<AuthenticationState> AuthenticationState { get; set; }
+        [CascadingParameter]
+        public Task<AuthenticationState> AuthenticationState { get; set; }
     private ClaimsPrincipal principal;
     private CurrentUserDTO currentUserDTO;
     private List<GroupDTO> allGroups;
     private List<MessagesDTO> messagesInformation;
+    private List<MessagesDTO> AllmessagesInformation;
     private string groupName;
     private ApexChartOptions<MessagesDTO> options;
     ApexChart<MessagesDTO> ApexxChart;
     protected override async Task OnInitializedAsync()
     {
+        options = new ApexChartOptions<MessagesDTO>
+        {
+            Chart = new Chart
+            {
+                Width = 340,
+                Height = 250,
+                ForeColor = "#ccc",
+                Toolbar = new Toolbar
+                {
+                    Show = false
+                }
+            },
+            Xaxis = new XAxis
+            {
+                Tooltip = new AxisTooltip { Enabled = false },
+            },
+            DataLabels = new ApexCharts.DataLabels
+            {
+                Enabled = false
+            },
+            Fill = new Fill
+            {
+                Gradient = new FillGradient
+                {
+                    OpacityFrom = 0.8,
+                    OpacityTo = 0.3
+                }
+            },
+            Colors = new List<string> { "#00BAEC" },
+            Stroke = new Stroke { Curve = Curve.Smooth },
+            Legend = new Legend
+            {
+                Show = false
+            },
+        };
         ApexxChart = new ApexChart<MessagesDTO>();
         updateSerice.UpdateEvent += async () =>
         {
@@ -94,52 +157,13 @@
             currentUserDTO = await httpClient.GetFromJsonAsync<CurrentUserDTO>("user/me");
             messagesInformation = await http.GetFromJsonAsync<List<MessagesDTO>>("user/MessagesInformation");
             allGroups = await http.GetFromJsonAsync<List<GroupDTO>>("Group/GetAllGroups");
-            options = new ApexChartOptions<MessagesDTO>
-            {
-                Chart = new Chart
-                {
-                    Height = 250,
-                    ForeColor = "#ccc",
-                    Toolbar = new Toolbar
-                    {
-                        Show = false
-                    }
-                },
-                Xaxis = new XAxis
-                {
-                    Tooltip = new AxisTooltip { Enabled = false },
-                    Type = XAxisType.Datetime
-                },
-                DataLabels = new ApexCharts.DataLabels
-                {
-                    Enabled = false
-                },
-                Grid = new Grid
-                {
-                    BorderColor = "#555",
-                    Row = new GridRow
-                    {
-                        Colors = new List<string> { "#f3f3f3", "transparent" },
-                        Opacity = 0.5d
-                    }
-                },
-                Fill = new Fill
-                {
-                    Gradient = new FillGradient
-                    {
-                        OpacityFrom = 0.8,
-                        OpacityTo = 0.3
-                    }
-                },
-                Colors = new List<string> { "#00BAEC" },
-                Markers = new Markers { Shape = ShapeEnum.Circle, Size = 5, Colors = new List<string> { "#000524" }, StrokeColors = "#00BAEC" },
-                Stroke = new Stroke { Curve = Curve.Smooth },
-                Legend = new Legend
-                {
-                    Show = false
-                },
-            };
         }
+        else
+        {
+            AllmessagesInformation = await http.GetFromJsonAsync<List<MessagesDTO>>("user/allMessages");
+            StateHasChanged();
+        }
+        StateHasChanged();
     }
     public async Task CreateGroupAsync()
     {
@@ -150,6 +174,7 @@
         await http.PostAsJsonAsync<GroupDTO>("group/creategroup", groupDTO);
         groupName = string.Empty;
         allGroups = await http.GetFromJsonAsync<List<GroupDTO>>("Group/GetAllGroups");
+        updateSerice.Invoke();
         StateHasChanged();
     }
     public async Task JoinGroup(Guid groupId)

@@ -7,16 +7,25 @@
     border-radius: 5px;
     padding: 10px;
     box-sizing: border-box;
+    display: grid;
+    grid-template-rows: 40px 1fr;
 }
 h3, h4{
     margin: 0;
+}
+.MainSection{
+    height: 100%;
+    width: 100%;
 }
 .groupSection{
     display: flex;
     justify-content: space-between;
 }
 .userConfigurationComponent {
-    display: flex;
+    height: 100%;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 400px 1fr;
     padding-top: 10px;
     box-sizing: border-box;
 }
@@ -45,4 +54,8 @@ h3, h4{
         border: 2px solid white;
         border-radius: 3px;
         cursor: pointer;
+    }
+    .chart{
+        height: 100%;
+        width: 100%;
     }

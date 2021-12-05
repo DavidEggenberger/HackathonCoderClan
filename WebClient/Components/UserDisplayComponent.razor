@@ -32,12 +32,12 @@
                                     <a href="@currentDisplayedUser.repoURI">Repos</a>
                                 </div>
                             </div>
-                            <h4 style="margin-bottom: 5px;">Joined Groups:</h4>
+                            <h4 style="margin: 5px;">Joined Groups:</h4>
                             @if (currentDisplayedUser.Groups != null)
                             {
                                 foreach (var group in currentDisplayedUser.Groups)
                                 {
-                                    <h4>@group.Name</h4>
+                                    <h4 style="margin-bottom: 4px;">@group.Name</h4>
                                 }
                             }
                         </div>

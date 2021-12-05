@@ -38,6 +38,21 @@ namespace WebAPI
                     },
                     PictureURI = "https://www.history.com/.image/ar_16:9%2Cc_fill%2Ccs_srgb%2Cfl_progressive%2Cq_auto:good%2Cw_1200/MTU3ODc4NjAwMjkxNzIyNTY5/yosemite-3.jpg"
                 });
+                appDbContext.Users.Add(new ApplicationUser
+                {
+                    UserName = "ProgrammingLover",
+                    GitHubRoot = new GitHubRootEntity
+                    {
+                        bio = "Reading books",
+                        blog = "https://jimmybogard.com/",
+                        html_url = "https://www.github.com",
+                        location = "Beach",
+                        twitter_username = "MyImaginaryTwitterUserName",
+                        login = "ProgrammingLover",
+                        repos_url = "https://www.github.com"
+                    },
+                    PictureURI = "https://th.bing.com/th/id/OIP.g3KkuitMwnvU0n19HeqgKwHaE7?pid=ImgDet&rs=1"
+                });
                 await appDbContext.SaveChangesAsync();
             }
 

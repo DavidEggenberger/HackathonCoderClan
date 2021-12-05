@@ -2,8 +2,15 @@
 @inject UpdateService updateSerice
 
 <div class="ChatComponentContainer">
-    <h3>Select a group to chat @selectedGrup?.Name</h3>
-    <select @bind="SelectedGroupId" @bind:event="oninput">
+    @if (selectedGrup == null)
+    {
+        <h3>Select a group to chat</h3>
+    }
+    else
+    {
+        <h3>Selected group: @selectedGrup?.Name</h3>
+    }
+    <select @bind="SelectedGroupId" @bind:event="oninput" style="margin: 5px 0;">
         @if (allGroups != null)
         {
             <option>Select the group</option>
@@ -20,11 +27,11 @@
                 <Authorized>
                     @foreach (var message in messages)
                     {
-                        if(message.SenderUserName == context.User.Identity.Name)
+                        if (message.SenderUserName == context.User.Identity.Name)
                         {
-                            <div class="message" style="display: flex;">
+                            <div class="message" style="display: flex; justify-content: space-between; width: 100%;">
                                 @message.SenderUserName: @message.Content <h3 @onclick='async() => { await HubConnection.InvokeAsync("RemoveMessage", new MessagesDTO { Id = message.Id, GroupId = selectedGrup.Id }); updateSerice.Invoke(); }'>Delete Message</h3>
-                            </div>               
+                            </div>
                         }
                     }
                 </Authorized>
@@ -89,7 +96,7 @@
         allGroups = await http.GetFromJsonAsync<List<GroupDTO>>("Group/GetAllGroups");
         HubConnection.On<Guid>("UpdateChatMessages", async (groupId) =>
         {
-            if(SelectedGroupId == groupId)
+            if (SelectedGroupId == groupId)
             {
                 await GetMessagesForGroupAsync(SelectedGroupId);
             }

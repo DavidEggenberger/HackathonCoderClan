@@ -9,6 +9,9 @@
     display: grid;
     grid-template-rows: 60px 1fr;
 }
+.mb{
+    
+}
 nav {
     box-sizing: border-box;
     padding: 15px 15px 0 15px;
@@ -36,7 +39,7 @@ h1{
 
 .loadingBackground {
     height: 100vh;
-    background: linear-gradient(0deg, rgba(251,7,90,1) 0%, rgba(249,83,167,1) 100%);
+    background-image: linear-gradient( 135deg, #43CBFF 10%, #9708CC 100%);
     display: grid;
     place-content: center;
 }
