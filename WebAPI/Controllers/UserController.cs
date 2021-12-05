@@ -161,7 +161,8 @@ namespace WebAPI.Controllers
                 twitter_username = user.GitHubRoot.twitter_username,
                 login = user.GitHubRoot.login,
                 UserName = user.UserName,
-                PictureURI = user.PictureURI
+                PictureURI = user.PictureURI,
+                repoURI = user.GitHubRoot.repos_url
             }).ToList();
         }
     }

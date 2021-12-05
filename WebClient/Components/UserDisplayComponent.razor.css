@@ -16,11 +16,11 @@
     height: 100%;
     width: 100%;
 }
-img{
+.icon{
     height: 40px;
     cursor: pointer;
 }
-img:hover{
+.icon:hover{
     transform: scale(1.2);
 }
 .left {
@@ -31,15 +31,15 @@ img:hover{
 }
 .mainProfile{
     display: grid;
-    grid-template-rows: 40px 1fr 40px;
+    grid-template-rows: 30px 1fr 30px;
 }
 .DisplayContainer{
 }
-h3, h5{
+h3, h5, h4{
     margin: 0;
 }
 .DisplayUserContainer{
-    padding: 15px 0;
+    padding: 10px;
     box-sizing: border-box;
     justify-items: center;
     height: 100%;
@@ -47,7 +47,23 @@ h3, h5{
     margin: 0 auto;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     border-radius: 5px;
     border: 2px solid white;
+}
+.mb{
+    margin-bottom: 5px;
+}
+img{
+    height: 140px;
+    max-width: 160px;
+}
+.Links{
+    display: flex;
+}
+.Links a{
+    margin-right: 5px;
+}
+a{
+    color: white !important;
+    font-size: 18px;
 }

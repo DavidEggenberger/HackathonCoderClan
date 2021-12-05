@@ -18,5 +18,6 @@ namespace DTOs.User
         public string login { get; set; }
         public string html_url { get; set; }
         public string blog { get; set; }
+        public string repoURI { get; set; }
     }
 }

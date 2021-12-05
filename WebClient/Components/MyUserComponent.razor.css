@@ -12,6 +12,6 @@ h3{
     margin: 0;
 }
 .userConfigurationComponent{
-    display: grid;
-    grid-template-columns: 100px 1fr;
+    display: flex;
+    
 }
