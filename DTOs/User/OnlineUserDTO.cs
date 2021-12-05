@@ -12,5 +12,11 @@ namespace DTOs.User
         public string PictureURI { get; set; }
         public string UserName { get; set; }
         public bool IsOnline { get; set; }
+        public string location { get; set; }
+        public string bio { get; set; }
+        public string twitter_username { get; set; }
+        public string login { get; set; }
+        public string html_url { get; set; }
+        public string blog { get; set; }
     }
 }

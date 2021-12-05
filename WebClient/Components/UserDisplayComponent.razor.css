@@ -7,4 +7,47 @@
     border-radius: 5px;
     padding: 10px;
     box-sizing: border-box;
+    display: grid;
+    grid-template-columns: 30px 1fr 30px;
+}
+.leftArrow, .rightArrow{
+    display: grid;
+    place-content: center;
+    height: 100%;
+    width: 100%;
+}
+img{
+    height: 40px;
+    cursor: pointer;
+}
+img:hover{
+    transform: scale(1.2);
+}
+.left {
+    transform: rotate(180deg);
+}
+.left:hover{
+    transform: rotate(180deg) scale(1.2);
+}
+.mainProfile{
+    display: grid;
+    grid-template-rows: 40px 1fr 40px;
+}
+.DisplayContainer{
+}
+h3, h5{
+    margin: 0;
+}
+.DisplayUserContainer{
+    padding: 15px 0;
+    box-sizing: border-box;
+    justify-items: center;
+    height: 100%;
+    width: 75%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-radius: 5px;
+    border: 2px solid white;
 }

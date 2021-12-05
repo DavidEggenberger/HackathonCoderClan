@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -59,12 +60,14 @@ namespace WebAPI.Controllers
                     PictureURI = info.Principal.Claims.Where(claim => claim.Type == "picture").First().Value
                 };
 
+                var result = await userManager.CreateAsync(_user);
+
                 gitHubAPIClient.SetAuthorizationHeader(info.Principal.Claims.Where(c => c.Type == "access_token").First().Value);
                 GitHubRoot gitHubRoot = await gitHubAPIClient.GetGitHubRootAsync();
                 GitHubRootEntity gitHubRootEntity = mapper.Map<GitHubRootEntity>(gitHubRoot);
                 _user.GitHubRoot = gitHubRootEntity;
+                await applicationDbContext.SaveChangesAsync();
 
-                var result = await userManager.CreateAsync(_user);
                 if (result.Succeeded)
                 {
                     result = await userManager.AddLoginAsync(_user, info);
@@ -79,6 +82,14 @@ namespace WebAPI.Controllers
                 user.PictureURI = pictureURI;
                 await userManager.UpdateAsync(user);
             }
+
+            gitHubAPIClient.SetAuthorizationHeader(info.Principal.Claims.Where(c => c.Type == "access_token").First().Value);
+            GitHubRoot gitHubRoot1 = await gitHubAPIClient.GetGitHubRootAsync();
+            GitHubRootEntity gitHubRootEntit1y = mapper.Map<GitHubRootEntity>(gitHubRoot1);
+            ApplicationUser appUser = applicationDbContext.Users.Include(s => s.GitHubRoot).Where(x => user.Id == x.Id).First();
+            appUser.GitHubRoot = gitHubRootEntit1y;
+            await applicationDbContext.SaveChangesAsync();
+
             var signInResult = await signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false, bypassTwoFactor: false);
             return signInResult switch
             {
@@ -136,6 +147,23 @@ namespace WebAPI.Controllers
             {
                 Claims = User.Claims.Select(claim => new ClaimValueDTO { Type = claim.Type, Value = claim.Value }).ToList()
             };
+        }
+        [HttpGet("AllClanUsers")]
+        [AllowAnonymous]
+        public ActionResult<List<OnlineUserDTO>> GetAllClanUsers()
+        {
+            return applicationDbContext.Users.Include(user => user.GitHubRoot).Select(user => new OnlineUserDTO
+            {
+                bio = user.GitHubRoot.bio,
+                blog = user.GitHubRoot.blog,
+                html_url = user.GitHubRoot.html_url,
+                location = user.GitHubRoot.location,
+                Id = user.Id,
+                twitter_username = user.GitHubRoot.twitter_username,
+                login = user.GitHubRoot.login,
+                UserName = user.UserName,
+                PictureURI = user.PictureURI
+            }).ToList();
         }
     }
 }

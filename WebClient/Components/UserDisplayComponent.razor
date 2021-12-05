@@ -1,3 +1,39 @@
-﻿<div class="UserDisplayComponentContainer">
+﻿@inject HttpClient httpClient
 
+<div class="UserDisplayComponentContainer">
+    <div class="leftArrow">
+        <img @onclick="() => { position--; currentDisplayedUser = allClanUsers[position % allClanUsers.Count]; StateHasChanged(); }" class="left" src="/next (6).png" />
+    </div>
+    <div class="mainProfile">
+        <div class="Showcase">
+            <h3></h3>
+        </div>
+        @if (currentDisplayedUser != null)
+        {
+            <div class="DisplayUserContainer">
+                <h3>@currentDisplayedUser.UserName</h3>
+                <h5>@currentDisplayedUser.bio</h5>
+                <div style="display: flex;">
+                    <h5>Location: @currentDisplayedUser.location</h5>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="rightArrow">
+        <img @onclick="() => { position++; currentDisplayedUser = allClanUsers[position % allClanUsers.Count]; StateHasChanged(); }" src="/next (6).png" />
+    </div>
 </div>
+
+@code{
+    [Parameter]
+    public string SelectedUserId { get; set; }
+    private List<OnlineUserDTO> allClanUsers;
+    private OnlineUserDTO currentDisplayedUser;
+    private int position;
+    protected override async Task OnInitializedAsync()
+    {
+        allClanUsers = await httpClient.GetFromJsonAsync<List<OnlineUserDTO>>("user/allclanusers");
+        position = new Random().Next(0, Math.Max(1, allClanUsers.Count));
+        currentDisplayedUser = allClanUsers[position];
+    }
+}
