@@ -26,7 +26,7 @@ namespace WebClient
             {
                 options.DefaultPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
             });
-            builder.Services.AddTransient<AuthorizedHandler>();
+            builder.Services.AddScoped<AuthorizedHandler>();
             builder.Services.AddScoped<AuthenticationStateProvider, HostAuthenticationStateProvider>();
             builder.Services.AddHttpClient("unauthorizedClient", client =>
             {

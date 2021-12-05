@@ -34,6 +34,8 @@
         hubConnection = new HubConnectionBuilder()
                 .WithUrl(NavigationManager.ToAbsoluteUri("/onlineHub"))
                 .Build();
+        onlineUsers = await httpClient.GetFromJsonAsync<List<OnlineUserDTO>>("/user/onlineusers");
+        StateHasChanged();
         hubConnection.On("UpdateOnlineUsers", async () =>
         {
             onlineUsers = await httpClient.GetFromJsonAsync<List<OnlineUserDTO>>("/user/onlineusers");

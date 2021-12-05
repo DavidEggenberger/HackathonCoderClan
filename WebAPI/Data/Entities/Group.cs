@@ -10,5 +10,6 @@ namespace WebAPI.Data.Entities
         public Guid Id { get; set; }
         public string Name { get; set; }
         public List<ApplicationUserGroupMembership> ApplicationUsersInGroup { get; set; }
+        public List<Message> GroupMessages { get; set; }
     }
 }

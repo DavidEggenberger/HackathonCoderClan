@@ -8,10 +8,41 @@
     padding: 10px;
     box-sizing: border-box;
 }
-h3{
+h3, h4{
     margin: 0;
 }
-.userConfigurationComponent{
+.groupSection{
     display: flex;
-    
+    justify-content: space-between;
 }
+.userConfigurationComponent {
+    display: flex;
+    padding-top: 10px;
+    box-sizing: border-box;
+}
+.underscore {
+    position: relative;
+    margin-bottom: 5px;
+}
+
+    .underscore::before {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background-color: white;
+    }
+    input{
+        outline: none;
+        border: none;
+        border-radius: 2px;
+    }
+    button{
+        margin-top: 5px;
+        padding: 3px;
+        border: 2px solid white;
+        border-radius: 3px;
+        cursor: pointer;
+    }

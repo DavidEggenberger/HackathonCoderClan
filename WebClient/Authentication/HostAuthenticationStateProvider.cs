@@ -35,7 +35,7 @@ namespace WebClient.Authentication
 
         private async ValueTask<ClaimsPrincipal> GetUser()
         {
-            if (DateTime.Now < userLastCheck + UserCacheRefreshInterval)
+            if (DateTime.Now < (userLastCheck + UserCacheRefreshInterval))
             {
                 return cachedUser;
             }

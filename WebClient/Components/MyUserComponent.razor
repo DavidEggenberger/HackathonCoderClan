@@ -1,4 +1,5 @@
 ﻿@inject IHttpClientFactory httpClientFactory
+@inject HttpClient http
 
 <div class="MyUserContainer">
     <div style="display: grid; place-content: center;">
@@ -15,8 +16,31 @@
         <AuthorizeView>
             <Authorized>
                 <div class="userConfigurationComponent">
-                    <div>
-
+                    <div class="allGroupsContainer">
+                        <h3 class="underscore">Join/leave an existing group:</h3>
+                        @if (allGroups != null)
+                        {
+                            foreach (var group in allGroups)
+                            {
+                                <div class="groupSection">
+                                    <h3>@group.Name</h3>
+                                    @if (!group.MembersId.Contains(principal.Claims.Where(s => s.Type == ClaimTypes.NameIdentifier).First().Value))
+                                    {
+                                        <h3 style="cursor: pointer;" @onclick="async() => await JoinGroup(group.Id)">Join Group</h3>
+                                    }
+                                    else
+                                    {
+                                        <h3 style="cursor: pointer;" @onclick="async() => await LeaveGroup(group.Id)">Leave Group</h3>
+                                    }
+                                </div>
+                            }
+                        }
+                        <h3 class="underscore" style="margin-top: 10px;">Create a new group</h3>
+                        <div>
+                            <label style="display: block;">Group Name:</label>
+                            <input style="display: block;" @bind="groupName" @bind:event="oninput" />
+                            <button @onclick="async() => await CreateGroupAsync()">Create Group</button>
+                        </div>                   
                     </div>
                     <div>
 
@@ -30,17 +54,43 @@
     </div>
 </div>
 
-@code {
+@code{
     [CascadingParameter]
     public Task<AuthenticationState> AuthenticationState { get; set; }
     private ClaimsPrincipal principal;
     private CurrentUserDTO currentUserDTO;
+    private List<GroupDTO> allGroups;
+    private string groupName;
     protected override async Task OnInitializedAsync()
     {
         if ((principal = (await AuthenticationState).User) != null && principal.Identity.IsAuthenticated)
         {
             HttpClient httpClient = httpClientFactory.CreateClient("authorizedClient");
             currentUserDTO = await httpClient.GetFromJsonAsync<CurrentUserDTO>("user/me");
+            allGroups = await http.GetFromJsonAsync<List<GroupDTO>>("Group/GetAllGroups");
         }
+    }
+    public async Task CreateGroupAsync()
+    {
+        GroupDTO groupDTO = new GroupDTO
+        {
+            Name = groupName
+        };
+        await http.PostAsJsonAsync<GroupDTO>("group/creategroup", groupDTO);
+        groupName = string.Empty;
+        allGroups = await http.GetFromJsonAsync<List<GroupDTO>>("Group/GetAllGroups");
+        StateHasChanged();
+    }
+    public async Task JoinGroup(Guid groupId)
+    {
+        await http.GetAsync($"group/joingroup/{groupId}");
+        allGroups = await http.GetFromJsonAsync<List<GroupDTO>>("Group/GetAllGroups");
+        StateHasChanged();
+    }
+    public async Task LeaveGroup(Guid groupId)
+    {
+        await http.GetAsync($"group/leavegroup/{groupId}");
+        allGroups = await http.GetFromJsonAsync<List<GroupDTO>>("Group/GetAllGroups");
+        StateHasChanged();
     }
 }
