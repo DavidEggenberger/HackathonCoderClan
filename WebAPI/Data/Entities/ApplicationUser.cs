@@ -13,5 +13,7 @@ namespace WebAPI.Data.Entities
         public bool IsOnline { get; set; }
         public string PictureURI { get; set; }
         public GitHubRootEntity GitHubRoot { get; set; }
+        public List<Learnings> UpcomingLearnings { get; set; }
+        public List<ApplicationUserGroupMembership> JoinedGroups { get; set; }
     }
 }

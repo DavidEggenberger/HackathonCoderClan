@@ -133,7 +133,6 @@ namespace WebAPI.Controllers
                 PrivateProfile = appUser.PrivateProfile
             };
         }
-
         [HttpGet("BFFUser")]
         [AllowAnonymous]
         public ActionResult<BFFUserInfoDTO> GetCurrentUser()
