@@ -11,5 +11,6 @@ namespace DTOs.Messages
         public string Content { get; set; }
         public string SenderUserName { get; set; }
         public Guid GroupId { get; set; }
+        public DateTime SentTime { get; set; }
     }
 }

@@ -1,6 +1,7 @@
 ﻿@inject IHttpClientFactory httpClientFactory
 @inject HttpClient http
 
+ 
 <div class="MyUserContainer">
     <div style="display: grid; place-content: center;">
         <AuthorizeView>
@@ -47,7 +48,17 @@
                         </div>                   
                     </div>
                     <div>
-
+                        @if (messagesInformation != null)
+                        {
+                            <ApexChart Title="Your Sent Messages" TItem="MessagesDTO">
+                                <ApexPointSeries TItem="MessagesDTO" Name="SentMessagesperDay"
+                                                 Items="messagesInformation"
+                                                 SeriesType="SeriesType.Line"
+                                                 XValue="@(e => e.SentTime.Hour)"
+                                                 YAggregate="@(e => e.Count())"
+                                                 ShowDataLabels />
+                            </ApexChart>
+                        }
                     </div>
                 </div>
             </Authorized>
@@ -64,14 +75,47 @@
     private ClaimsPrincipal principal;
     private CurrentUserDTO currentUserDTO;
     private List<GroupDTO> allGroups;
+    private List<MessagesDTO> messagesInformation;
     private string groupName;
+    private ApexChartOptions<MessagesDTO> options;
     protected override async Task OnInitializedAsync()
     {
         if ((principal = (await AuthenticationState).User) != null && principal.Identity.IsAuthenticated)
         {
             HttpClient httpClient = httpClientFactory.CreateClient("authorizedClient");
             currentUserDTO = await httpClient.GetFromJsonAsync<CurrentUserDTO>("user/me");
+            messagesInformation = await http.GetFromJsonAsync<List<MessagesDTO>>("user/MessagesInformation");
             allGroups = await http.GetFromJsonAsync<List<GroupDTO>>("Group/GetAllGroups");
+            options = new ApexChartOptions<MessagesDTO>
+            {
+                Chart = new Chart
+                {
+                    Toolbar = new Toolbar
+                    {
+                        Show = false
+                    }
+                },
+                DataLabels = new ApexCharts.DataLabels
+                {
+                    OffsetY = -6d
+                },
+                Grid = new Grid
+                {
+                    BorderColor = "#e7e7e7",
+                    Row = new GridRow
+                    {
+                        Colors = new List<string> { "#f3f3f3", "transparent" },
+                        Opacity = 0.5d
+                    }
+                },
+                Colors = new List<string> { "#77B6EA", "#545454" },
+                Markers = new Markers { Shape = ShapeEnum.Circle, Size = 5 },
+                Stroke = new Stroke { Curve = Curve.Smooth },
+                Legend = new Legend
+                {
+                    Show = false
+                },
+            };
         }
     }
     public async Task CreateGroupAsync()

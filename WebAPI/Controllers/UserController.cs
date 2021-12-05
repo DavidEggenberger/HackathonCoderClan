@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using DTOs.Messages;
 using DTOs.User;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -170,6 +171,15 @@ namespace WebAPI.Controllers
                 {
                     Name = s.Group.Name
                 }).ToList()
+            }).ToList();
+        }
+        [HttpGet("MessagesInformation")]
+        public async Task<List<MessagesDTO>> GetMessagesInfo()
+        {
+            ApplicationUser appUser = applicationDbContext.Users.Include(s => s.SentMessages).ToList().Where(user => user.Id == User.Claims.First(claim => claim.Type == ClaimTypes.NameIdentifier).Value).First();
+            return appUser.SentMessages.Select(message => new MessagesDTO
+            {
+                SentTime = message.SentTime
             }).ToList();
         }
     }

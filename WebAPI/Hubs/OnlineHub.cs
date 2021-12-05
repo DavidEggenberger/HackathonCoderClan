@@ -65,6 +65,13 @@ namespace WebAPI.Hubs
         {
             ApplicationUser appUser = await userManager.FindByIdAsync(Context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             Group group = applicationDbContext.Groups.Include(s => s.GroupMessages).ThenInclude(t => t.ApplicationUser).Where(group => group.Id == messageDTO.GroupId).First();
+            group.GroupMessages.Add(new Message
+            {
+                ApplicationUser = appUser,
+                Text = messageDTO.Content,
+                SentTime = DateTime.Now
+            });
+            await applicationDbContext.SaveChangesAsync();
             await Clients.All.SendAsync("UpdateChatMessages", group.Id);
         }
     }

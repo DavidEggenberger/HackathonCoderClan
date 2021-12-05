@@ -19,14 +19,15 @@
             foreach (var message in messages)
             {
                 <div class="message">
-
+                    @message.SenderUserName: @message.Content
                 </div>
             }
         }
         <AuthorizeView>
             <Authorized>
-                <input />
-                <h3>Send Message</h3>
+                
+                <input @bind="message" @bind:event="oninput"/>
+                <h3 @onclick="async() => await SendMessage()" style="cursor: pointer;">Send Message</h3>
             </Authorized>
             <NotAuthorized>
                 <h4>In order to send messages you must login and join the group</h4>
@@ -38,6 +39,7 @@
 @code{
     [CascadingParameter]
     public HubConnection HubConnection { get; set; }
+    private string message;
     private Guid selectedGroupId;
     public Guid SelectedGroupId
     {
@@ -55,7 +57,10 @@
         allGroups = await http.GetFromJsonAsync<List<GroupDTO>>("Group/GetAllGroups");
         HubConnection.On<Guid>("UpdateChatMessages", async (groupId) =>
         {
-
+            if(SelectedGroupId == groupId)
+            {
+                await GetMessagesForGroupAsync(SelectedGroupId);
+            }
         });
     }
 
@@ -63,5 +68,14 @@
     {
         messages = await http.GetFromJsonAsync<List<MessagesDTO>>($"Group/MessagesForGroup/{groupId}");
         StateHasChanged();
+    }
+    public async Task SendMessage()
+    {
+        await HubConnection.InvokeAsync("SendMessage", new MessagesDTO
+        {
+            Content = message,
+            GroupId = selectedGroupId
+        });
+        message = string.Empty;
     }
 }
