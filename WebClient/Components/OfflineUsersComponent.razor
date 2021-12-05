@@ -1,9 +1,20 @@
-﻿@if (OfflineUserDTOs != null)
+﻿<style>
+    .userSection {
+        margin-bottom: 5px;
+        border: 2px solid white;
+        border-radius: 5px;
+        padding: 3px;
+        box-sizing: border-box;
+        display: flex;
+    }
+</style>
+
+@if (OfflineUserDTOs != null)
 {
     foreach (var item in OfflineUserDTOs)
     {
         <div class="userSection">
-            @item.Id
+            @item.UserName
         </div>
     }
 }

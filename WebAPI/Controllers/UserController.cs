@@ -50,11 +50,11 @@ namespace WebAPI.Controllers
         public async Task<IActionResult> GitHubLoginCallback(string ReturnUrl = null)
         {
             var info = await signInManager.GetExternalLoginInfoAsync();
-            var user = await userManager.FindByNameAsync(info.Principal.Identity.Name);
-            if(user == null)
+            if(info.Principal == null)
             {
-                return Redirect("/");
+                return Redirect("/User/Login");
             }
+            var user = await userManager.FindByNameAsync(info.Principal.Identity.Name);
             if (info is not null && user is null)
             {
                 ApplicationUser _user = new ApplicationUser

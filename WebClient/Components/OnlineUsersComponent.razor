@@ -1,14 +1,35 @@
-﻿@if (OnlineUserDTOs != null)
+﻿<style>
+    .userSection{
+        margin-bottom: 5px;
+        border: 2px solid white;
+        border-radius: 5px;
+        padding: 3px;
+        box-sizing: border-box;
+        display: flex;
+    }
+</style>
+
+@if (OnlineUserDTOs != null)
 {
     foreach (var item in OnlineUserDTOs)
     {
         <div class="userSection">
-            @item.Id
+            @item.UserName
         </div>
     }
 }
 
 @code{
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthenticationState { get; set; }
     [Parameter]
     public List<OnlineUserDTO> OnlineUserDTOs { get; set; }
+    private ClaimsPrincipal principal;
+    protected override async Task OnInitializedAsync()
+    {
+        if ((principal = (await AuthenticationState).User) != null && principal.Identity.IsAuthenticated)
+        {
+            
+        }
+    }
 }

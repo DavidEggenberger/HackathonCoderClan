@@ -1,7 +1,8 @@
 ﻿@inject HttpClient http
+@inject UpdateService updateSerice
 
 <div class="ChatComponentContainer">
-    <h3>Select a group to chat @SelectedGroupId</h3>
+    <h3>Select a group to chat @selectedGrup?.Name</h3>
     <select @bind="SelectedGroupId" @bind:event="oninput">
         @if (allGroups != null)
         {
@@ -11,7 +12,6 @@
                 <option value="@item.Id">@item.Name</option>
             }
         }
-
     </select>
     <div class="MessageSection">
         @if (messages != null)
@@ -25,9 +25,18 @@
         }
         <AuthorizeView>
             <Authorized>
-                
-                <input @bind="message" @bind:event="oninput"/>
-                <h3 @onclick="async() => await SendMessage()" style="cursor: pointer;">Send Message</h3>
+                @if (selectedGrup != null)
+                {
+                    if (selectedGrup.MembersId.Contains(context.User.Claims.First(co => co.Type == ClaimTypes.NameIdentifier).Value))
+                    {
+                        <input @bind="message" @bind:event="oninput" />
+                        <h3 @onclick="async() => await SendMessage()" style="cursor: pointer;">Send Message</h3>
+                    }
+                    else
+                    {
+                        <h3>You must join a clan to chat</h3>
+                    }
+                }
             </Authorized>
             <NotAuthorized>
                 <h4>In order to send messages you must login and join the group</h4>
@@ -40,6 +49,7 @@
     [CascadingParameter]
     public HubConnection HubConnection { get; set; }
     private string message;
+    private GroupDTO selectedGrup;
     private Guid selectedGroupId;
     public Guid SelectedGroupId
     {
@@ -47,6 +57,7 @@
         set
         {
             selectedGroupId = value;
+            selectedGrup = allGroups.Where(s => s.Id == selectedGroupId).First();
             GetMessagesForGroupAsync(selectedGroupId);
         }
     }
@@ -54,6 +65,12 @@
     private List<MessagesDTO> messages;
     protected override async Task OnInitializedAsync()
     {
+        updateSerice.UpdateEvent += async () =>
+        {
+            allGroups = await http.GetFromJsonAsync<List<GroupDTO>>("Group/GetAllGroups");
+            selectedGrup = allGroups.Where(s => s.Id == selectedGroupId).First();
+            StateHasChanged();
+        };
         allGroups = await http.GetFromJsonAsync<List<GroupDTO>>("Group/GetAllGroups");
         HubConnection.On<Guid>("UpdateChatMessages", async (groupId) =>
         {
@@ -77,5 +94,6 @@
             GroupId = selectedGroupId
         });
         message = string.Empty;
+        updateSerice.Invoke();
     }
 }

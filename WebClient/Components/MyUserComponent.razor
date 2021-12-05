@@ -1,7 +1,7 @@
 ﻿@inject IHttpClientFactory httpClientFactory
 @inject HttpClient http
+@inject UpdateService updateSerice
 
- 
 <div class="MyUserContainer">
     <div style="display: grid; place-content: center;">
         <AuthorizeView>
@@ -45,15 +45,15 @@
                             <label style="display: block;">Group Name:</label>
                             <input style="display: block;" @bind="groupName" @bind:event="oninput" />
                             <button @onclick="async() => await CreateGroupAsync()">Create Group</button>
-                        </div>                   
+                        </div>
                     </div>
                     <div>
                         @if (messagesInformation != null)
                         {
-                            <ApexChart Title="Your Sent Messages" TItem="MessagesDTO">
+                            <ApexChart @ref="ApexxChart" Title="Your Sent Messages" TItem="MessagesDTO">
                                 <ApexPointSeries TItem="MessagesDTO" Name="SentMessagesperDay"
                                                  Items="messagesInformation"
-                                                 SeriesType="SeriesType.Line"
+                                                 SeriesType="SeriesType.Area"
                                                  XValue="@(e => e.SentTime.Hour)"
                                                  YAggregate="@(e => e.Count())"
                                                  ShowDataLabels />
@@ -78,8 +78,16 @@
     private List<MessagesDTO> messagesInformation;
     private string groupName;
     private ApexChartOptions<MessagesDTO> options;
+    ApexChart<MessagesDTO> ApexxChart;
     protected override async Task OnInitializedAsync()
     {
+        ApexxChart = new ApexChart<MessagesDTO>();
+        updateSerice.UpdateEvent += async () =>
+        {
+            messagesInformation = await http.GetFromJsonAsync<List<MessagesDTO>>("user/MessagesInformation");
+            ApexxChart.SetRerenderChart();
+            StateHasChanged();
+        };
         if ((principal = (await AuthenticationState).User) != null && principal.Identity.IsAuthenticated)
         {
             HttpClient httpClient = httpClientFactory.CreateClient("authorizedClient");
@@ -90,26 +98,41 @@
             {
                 Chart = new Chart
                 {
+                    Height = 250,
+                    ForeColor = "#ccc",
                     Toolbar = new Toolbar
                     {
                         Show = false
                     }
                 },
+                Xaxis = new XAxis
+                {
+                    Tooltip = new AxisTooltip { Enabled = false },
+                    Type = XAxisType.Datetime
+                },
                 DataLabels = new ApexCharts.DataLabels
                 {
-                    OffsetY = -6d
+                    Enabled = false
                 },
                 Grid = new Grid
                 {
-                    BorderColor = "#e7e7e7",
+                    BorderColor = "#555",
                     Row = new GridRow
                     {
                         Colors = new List<string> { "#f3f3f3", "transparent" },
                         Opacity = 0.5d
                     }
                 },
-                Colors = new List<string> { "#77B6EA", "#545454" },
-                Markers = new Markers { Shape = ShapeEnum.Circle, Size = 5 },
+                Fill = new Fill
+                {
+                    Gradient = new FillGradient
+                    {
+                        OpacityFrom = 0.8,
+                        OpacityTo = 0.3
+                    }
+                },
+                Colors = new List<string> { "#00BAEC" },
+                Markers = new Markers { Shape = ShapeEnum.Circle, Size = 5, Colors = new List<string> { "#000524" }, StrokeColors = "#00BAEC" },
                 Stroke = new Stroke { Curve = Curve.Smooth },
                 Legend = new Legend
                 {
@@ -134,12 +157,14 @@
         await http.GetAsync($"group/joingroup/{groupId}");
         allGroups = await http.GetFromJsonAsync<List<GroupDTO>>("Group/GetAllGroups");
         StateHasChanged();
+        updateSerice.Invoke();
     }
     public async Task LeaveGroup(Guid groupId)
     {
         await http.GetAsync($"group/leavegroup/{groupId}");
         allGroups = await http.GetFromJsonAsync<List<GroupDTO>>("Group/GetAllGroups");
         StateHasChanged();
+        updateSerice.Invoke();
     }
     public async Task DeleteGroup(Guid groupId)
     {
