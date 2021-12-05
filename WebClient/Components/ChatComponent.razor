@@ -33,6 +33,15 @@
                                 @message.SenderUserName: @message.Content <h3 @onclick='async() => { await HubConnection.InvokeAsync("RemoveMessage", new MessagesDTO { Id = message.Id, GroupId = selectedGrup.Id }); updateSerice.Invoke(); }'>Delete Message</h3>
                             </div>
                         }
+                        else
+                        {
+                            foreach (var message in messages)
+                            {
+                                <div class="message">
+                                    @message.SenderUserName: @message.Content
+                                </div>
+                            }
+                        }
                     }
                 </Authorized>
                 <NotAuthorized>
