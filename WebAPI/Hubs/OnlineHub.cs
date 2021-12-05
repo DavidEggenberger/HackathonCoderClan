@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using DTOs.Messages;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,6 +60,12 @@ namespace WebAPI.Hubs
                 await userManager.UpdateAsync(appUser);
                 await Clients.AllExcept(appUser.Id).SendAsync("UpdateOnlineUsers");
             }
+        }
+        public async Task SendMessage(MessagesDTO messageDTO)
+        {
+            ApplicationUser appUser = await userManager.FindByIdAsync(Context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            Group group = applicationDbContext.Groups.Include(s => s.GroupMessages).ThenInclude(t => t.ApplicationUser).Where(group => group.Id == messageDTO.GroupId).First();
+            await Clients.All.SendAsync("UpdateChatMessages", group.Id);
         }
     }
 }

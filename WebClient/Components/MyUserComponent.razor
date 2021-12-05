@@ -26,11 +26,11 @@
                                     <h3>@group.Name</h3>
                                     @if (!group.MembersId.Contains(principal.Claims.Where(s => s.Type == ClaimTypes.NameIdentifier).First().Value))
                                     {
-                                        <h3 style="cursor: pointer;" @onclick="async() => await JoinGroup(group.Id)">Join Group</h3>
+                                        <h3 style="cursor: pointer; margin-left: 10px;" @onclick="async() => await JoinGroup(group.Id)">Join Group</h3>
                                     }
                                     else
                                     {
-                                        <h3 style="cursor: pointer;" @onclick="async() => await LeaveGroup(group.Id)">Leave Group</h3>
+                                        <h3 style="cursor: pointer; margin-left: 10px;" @onclick="async() => await LeaveGroup(group.Id)">Leave Group</h3>
                                     }
                                     @if (group.CreatorId == null || group.CreatorId == principal.Claims.Where(s => s.Type == ClaimTypes.NameIdentifier).First().Value)
                                     {

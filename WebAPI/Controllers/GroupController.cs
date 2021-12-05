@@ -1,4 +1,5 @@
 ﻿using DTOs.Group;
+using DTOs.Messages;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -98,6 +99,16 @@ namespace WebAPI.Controllers
                 await applicationDbContext.SaveChangesAsync();
             }
             return Ok();
+        }
+        [HttpGet("MessagesForGroup/{groupId}")]
+        public async Task<List<MessagesDTO>> GetMessagesPerGroup(Guid groupId)
+        {
+            Group group = applicationDbContext.Groups.Include(s => s.GroupMessages).ThenInclude(t => t.ApplicationUser).Where(group => group.Id == groupId).First();
+            return group.GroupMessages.Select(message => new MessagesDTO
+            {
+                Content = message.Text,
+                SenderUserName = message.ApplicationUser.UserName
+            }).ToList();
         }
     }
 }

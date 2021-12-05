@@ -1,15 +1,67 @@
-﻿<div class="ChatComponentContainer">
-    <h3>Select a group to chat</h3>
-    <AuthorizeView>
-        <Authorized>
+﻿@inject HttpClient http
 
-        </Authorized>
-        <NotAuthorized>
-            <h4>In order to send messages you must login</h4>
-        </NotAuthorized>
-    </AuthorizeView>
+<div class="ChatComponentContainer">
+    <h3>Select a group to chat @SelectedGroupId</h3>
+    <select @bind="SelectedGroupId" @bind:event="oninput">
+        @if (allGroups != null)
+        {
+            <option>Select the group</option>
+            foreach (var item in allGroups)
+            {
+                <option value="@item.Id">@item.Name</option>
+            }
+        }
+
+    </select>
+    <div class="MessageSection">
+        @if (messages != null)
+        {
+            foreach (var message in messages)
+            {
+                <div class="message">
+
+                </div>
+            }
+        }
+        <AuthorizeView>
+            <Authorized>
+                <input />
+                <h3>Send Message</h3>
+            </Authorized>
+            <NotAuthorized>
+                <h4>In order to send messages you must login and join the group</h4>
+            </NotAuthorized>
+        </AuthorizeView>
+    </div>
 </div>
 
 @code{
+    [CascadingParameter]
+    public HubConnection HubConnection { get; set; }
+    private Guid selectedGroupId;
+    public Guid SelectedGroupId
+    {
+        get => selectedGroupId;
+        set
+        {
+            selectedGroupId = value;
+            GetMessagesForGroupAsync(selectedGroupId);
+        }
+    }
+    private List<GroupDTO> allGroups;
+    private List<MessagesDTO> messages;
+    protected override async Task OnInitializedAsync()
+    {
+        allGroups = await http.GetFromJsonAsync<List<GroupDTO>>("Group/GetAllGroups");
+        HubConnection.On<Guid>("UpdateChatMessages", async (groupId) =>
+        {
 
+        });
+    }
+
+    public async Task GetMessagesForGroupAsync(Guid groupId)
+    {
+        messages = await http.GetFromJsonAsync<List<MessagesDTO>>($"Group/MessagesForGroup/{groupId}");
+        StateHasChanged();
+    }
 }
