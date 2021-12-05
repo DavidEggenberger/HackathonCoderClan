@@ -88,25 +88,54 @@ namespace WebAPI.Controllers
         }
         [Authorize]
         [HttpGet("Logout")]
-        public async Task<ActionResult<BFFUserInfoDTO>> LogoutCurrentUser()
+        public async Task<ActionResult> LogoutCurrentUser()
         {
             ApplicationUser appUser = await userManager.FindByIdAsync(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             appUser.TabsOpen = 0;
             appUser.IsOnline = false;
             await userManager.UpdateAsync(appUser);
+            await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
             await onlineHubContext.Clients.All.SendAsync("UpdateOnlineUsers");
-            return SignOut(new AuthenticationProperties
-            {
-                RedirectUri = "/"
-            }, IdentityConstants.ApplicationScheme, IdentityConstants.ExternalScheme);
+            return Redirect("/");
         }
         [HttpGet("onlineUsers")]
-        public ActionResult<List<UserDTO>> GetOnlineUsers()
+        public ActionResult<List<OnlineUserDTO>> GetOnlineUsers()
         {
-            return applicationDbContext.Users.Select(user => new UserDTO
+            return applicationDbContext.Users.Select(user => new OnlineUserDTO
             {
-                
+                Id = user.Id,
+                IsOnline = user.IsOnline,
+                PictureURI = user.PictureURI,
+                UserName = user.UserName
             }).ToList();
+        }
+        [Authorize]
+        [HttpGet("me")]
+        public async Task<ActionResult<CurrentUserDTO>> GetInfosOverMySelf()
+        {
+            ApplicationUser appUser = await userManager.FindByIdAsync(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            return new CurrentUserDTO
+            {
+                Id = appUser.Id,
+                UserName = appUser.UserName,
+                PictureURI = appUser.PictureURI,
+                PrivateProfile = appUser.PrivateProfile
+            };
+        }
+
+        [HttpGet("BFFUser")]
+        [AllowAnonymous]
+        public ActionResult<BFFUserInfoDTO> GetCurrentUser()
+        {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return BFFUserInfoDTO.Anonymous;
+            }
+
+            return new BFFUserInfoDTO()
+            {
+                Claims = User.Claims.Select(claim => new ClaimValueDTO { Type = claim.Type, Value = claim.Value }).ToList()
+            };
         }
     }
 }

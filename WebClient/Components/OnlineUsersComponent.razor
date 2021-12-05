@@ -1,0 +1,14 @@
+﻿@if (OnlineUserDTOs != null)
+{
+    foreach (var item in OnlineUserDTOs)
+    {
+        <div class="userSection">
+            @item.Id
+        </div>
+    }
+}
+
+@code{
+    [Parameter]
+    public List<OnlineUserDTO> OnlineUserDTOs { get; set; }
+}

@@ -1,5 +1,6 @@
 ﻿@page "/"
 @inject NavigationManager NavigationManager
+@inject HttpClient httpClient
 
 <div class="IndexContainer">
     <CascadingValue Value="hubConnection">
@@ -8,13 +9,13 @@
                 <h3>Online Clan Members</h3>
             </div>
             <div class="OnlineUsers">
-
+                <OnlineUsersComponent OnlineUserDTOs="onlineUsers?.Where(user => user.IsOnline)?.ToList()"/>
             </div>
             <div class="OnlineUserHeaderSection">
                 <h3>Offline Clan Members</h3>
             </div>
-            <div class="OnlineUsers">
-
+            <div class="OfflineUsers">
+                <OfflineUsersComponent OfflineUserDTOs="onlineUsers?.Where(user => user.IsOnline!)?.ToList()"/>
             </div>
         </aside>
         <div class="IndexMainSection">
@@ -27,12 +28,17 @@
 
 @code{
     private HubConnection hubConnection;
-
+    private List<OnlineUserDTO> onlineUsers;
     protected override async Task OnInitializedAsync()
     {
         hubConnection = new HubConnectionBuilder()
                 .WithUrl(NavigationManager.ToAbsoluteUri("/onlineHub"))
                 .Build();
+        hubConnection.On("UpdateOnlineUsers", async () =>
+        {
+            onlineUsers = await httpClient.GetFromJsonAsync<List<OnlineUserDTO>>("/user/onlineusers");
+            StateHasChanged();
+        });
         await hubConnection.StartAsync();
         StateHasChanged();
     }

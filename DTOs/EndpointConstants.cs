@@ -8,6 +8,7 @@ namespace DTOs
 {
     public class EndpointConstants
     {
+        public const string UserClaimsPath = "/User/BFFUser";
         public const string LoginPath = "/User/Login";
         public const string LogoutPath = "/User/Logout";
     }

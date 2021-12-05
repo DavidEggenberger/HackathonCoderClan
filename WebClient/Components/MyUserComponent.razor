@@ -1,9 +1,39 @@
-﻿<div class="MyUserContainer">
+﻿@inject IHttpClientFactory httpClientFactory
+
+<div class="MyUserContainer">
     <div style="display: grid; place-content: center;">
-        <h3>Configure your User Profile</h3>
+        <AuthorizeView>
+            <Authorized>
+                <h3>@context.User.Identity.Name Configure your User Profile</h3>
+            </Authorized>
+            <NotAuthorized>
+
+            </NotAuthorized>
+        </AuthorizeView>
+    </div>
+    <div class="MainSection">
+        <AuthorizeView>
+            <Authorized>
+
+            </Authorized>
+            <NotAuthorized>
+
+            </NotAuthorized>
+        </AuthorizeView>
     </div>
 </div>
 
 @code {
-
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthenticationState { get; set; }
+    private ClaimsPrincipal principal;
+    private CurrentUserDTO currentUserDTO;
+    protected override async Task OnInitializedAsync()
+    {
+        if ((principal = (await AuthenticationState).User) != null && principal.Identity.IsAuthenticated)
+        {
+            HttpClient httpClient = httpClientFactory.CreateClient("authorizedClient");
+            currentUserDTO = await httpClient.GetFromJsonAsync<CurrentUserDTO>("user/me");
+        }
+    }
 }

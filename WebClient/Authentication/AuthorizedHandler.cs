@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Components.Authorization;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -12,9 +13,9 @@ namespace WebClient.Authentication
     {
         private readonly HostAuthenticationStateProvider _authenticationStateProvider;
 
-        public AuthorizedHandler(HostAuthenticationStateProvider authenticationStateProvider)
+        public AuthorizedHandler(AuthenticationStateProvider authenticationStateProvider)
         {
-            _authenticationStateProvider = authenticationStateProvider;
+            _authenticationStateProvider = (HostAuthenticationStateProvider)authenticationStateProvider;
         }
 
         protected override async Task<HttpResponseMessage> SendAsync(

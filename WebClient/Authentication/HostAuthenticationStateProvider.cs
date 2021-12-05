@@ -50,7 +50,7 @@ namespace WebClient.Authentication
         {
             try
             {
-                var response = await httpClient.GetAsync(EndpointConstants.LoginPath);
+                var response = await httpClient.GetAsync(EndpointConstants.UserClaimsPath);
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {

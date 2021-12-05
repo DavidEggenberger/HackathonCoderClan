@@ -26,7 +26,7 @@ namespace WebClient
             {
                 options.DefaultPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
             });
-
+            builder.Services.AddTransient<AuthorizedHandler>();
             builder.Services.AddScoped<AuthenticationStateProvider, HostAuthenticationStateProvider>();
             builder.Services.AddHttpClient("unauthorizedClient", client =>
             {
@@ -34,6 +34,7 @@ namespace WebClient
             });
             builder.Services.AddHttpClient("authorizedClient", client =>
             {
+                client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             }).AddHttpMessageHandler<AuthorizedHandler>();
             builder.Services.AddTransient(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("unauthorizedClient"));
