@@ -9,6 +9,7 @@ namespace DTOs.Group
     public class GroupDTO
     {
         public Guid Id { get; set; }
+        public string CreatorId { get; set; }
         public List<string> MembersId { get; set; }
         public string Name { get; set; }
     }

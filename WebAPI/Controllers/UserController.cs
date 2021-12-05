@@ -154,7 +154,7 @@ namespace WebAPI.Controllers
         [AllowAnonymous]
         public ActionResult<List<OnlineUserDTO>> GetAllClanUsers()
         {
-            return applicationDbContext.Users.Include(user => user.GitHubRoot).Select(user => new OnlineUserDTO
+            return applicationDbContext.Users.Include(s => s.JoinedGroups).ThenInclude(s => s.Group).Include(user => user.GitHubRoot).Select(user => new OnlineUserDTO
             {
                 bio = user.GitHubRoot.bio,
                 blog = user.GitHubRoot.blog,
@@ -165,7 +165,11 @@ namespace WebAPI.Controllers
                 login = user.GitHubRoot.login,
                 UserName = user.UserName,
                 PictureURI = user.PictureURI,
-                repoURI = user.GitHubRoot.repos_url
+                repoURI = user.GitHubRoot.repos_url,
+                Groups = user.JoinedGroups.Select(s => new DTOs.Group.GroupDTO
+                {
+                    Name = s.Group.Name
+                }).ToList()
             }).ToList();
         }
     }

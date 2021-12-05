@@ -55,7 +55,8 @@ namespace WebAPI.Controllers
             {
                 Name = group.Name,
                 Id = group.Id,
-                MembersId = group.ApplicationUsersInGroup.Select(s => s.ApplicationUserId).ToList()
+                MembersId = group.ApplicationUsersInGroup.Select(s => s.ApplicationUserId).ToList(),
+                CreatorId = group.CreatorApplicationUserId
             }).ToList();
         }
         [HttpGet("JoinGroup/{groupId}")]
@@ -82,6 +83,18 @@ namespace WebAPI.Controllers
             {
                 ApplicationUserGroupMembership applicationUserGroupMembership = group.ApplicationUsersInGroup.Where(s => s.ApplicationUserId == appUser.Id).First();
                 group.ApplicationUsersInGroup.Remove(applicationUserGroupMembership);
+                await applicationDbContext.SaveChangesAsync();
+            }
+            return Ok();
+        }
+        [HttpGet("DeleteGroup/{groupId}")]
+        public async Task<ActionResult> DeleteGroup(Guid groupId)
+        {
+            Group group = applicationDbContext.Groups.Include(s => s.ApplicationUsersInGroup).Where(group => group.Id == groupId).First();
+            ApplicationUser appUser = await userManager.FindByIdAsync(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            if (group.CreatorApplicationUserId == null || group.CreatorApplicationUserId == appUser.Id)
+            {
+                applicationDbContext.Groups.Remove(group);
                 await applicationDbContext.SaveChangesAsync();
             }
             return Ok();

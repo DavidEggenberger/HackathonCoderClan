@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebAPI.Data;
 
 namespace WebAPI.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211205044223_SentMessages")]
+    partial class SentMessages
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -360,15 +362,10 @@ namespace WebAPI.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("CreatorApplicationUserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CreatorApplicationUserId");
 
                     b.ToTable("Groups");
                 });
@@ -494,15 +491,6 @@ namespace WebAPI.Data.Migrations
                         .HasForeignKey("WebAPI.Data.Entities.GitHubRootEntity", "ApplicationUserId");
 
                     b.Navigation("ApplicationUser");
-                });
-
-            modelBuilder.Entity("WebAPI.Data.Entities.Group", b =>
-                {
-                    b.HasOne("WebAPI.Data.Entities.ApplicationUser", "CreatorApplicationUser")
-                        .WithMany()
-                        .HasForeignKey("CreatorApplicationUserId");
-
-                    b.Navigation("CreatorApplicationUser");
                 });
 
             modelBuilder.Entity("WebAPI.Data.Entities.Learnings", b =>

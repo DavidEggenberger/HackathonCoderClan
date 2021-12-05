@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DTOs.Group;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,5 +20,6 @@ namespace DTOs.User
         public string html_url { get; set; }
         public string blog { get; set; }
         public string repoURI { get; set; }
+        public List<GroupDTO> Groups { get; set; }
     }
 }

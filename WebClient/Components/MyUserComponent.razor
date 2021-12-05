@@ -32,6 +32,10 @@
                                     {
                                         <h3 style="cursor: pointer;" @onclick="async() => await LeaveGroup(group.Id)">Leave Group</h3>
                                     }
+                                    @if (group.CreatorId == null || group.CreatorId == principal.Claims.Where(s => s.Type == ClaimTypes.NameIdentifier).First().Value)
+                                    {
+                                        <h3 style="cursor: pointer; margin-left: 10px;" @onclick="async() => await DeleteGroup(group.Id)">Delete Group</h3>
+                                    }
                                 </div>
                             }
                         }
@@ -90,6 +94,12 @@
     public async Task LeaveGroup(Guid groupId)
     {
         await http.GetAsync($"group/leavegroup/{groupId}");
+        allGroups = await http.GetFromJsonAsync<List<GroupDTO>>("Group/GetAllGroups");
+        StateHasChanged();
+    }
+    public async Task DeleteGroup(Guid groupId)
+    {
+        await http.GetAsync($"group/deletegroup/{groupId}");
         allGroups = await http.GetFromJsonAsync<List<GroupDTO>>("Group/GetAllGroups");
         StateHasChanged();
     }

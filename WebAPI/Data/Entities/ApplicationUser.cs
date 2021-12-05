@@ -15,5 +15,6 @@ namespace WebAPI.Data.Entities
         public GitHubRootEntity GitHubRoot { get; set; }
         public List<Learnings> UpcomingLearnings { get; set; }
         public List<ApplicationUserGroupMembership> JoinedGroups { get; set; }
+        public List<Message> SentMessages { get; set; }
     }
 }
